@@ -27,6 +27,7 @@ class OrderServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private CartService cartService;
     @Mock private ProductStreamService productStreamService;
+    @Mock private com.example.inventory.service.StockMovementService stockMovementService;
 
     @InjectMocks
     private OrderService orderService;

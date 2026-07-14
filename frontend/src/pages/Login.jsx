@@ -17,6 +17,11 @@ export default function Login() {
     try {
       if (mode === 'login') await login(email, password)
       else await register(email, password)
+      // Admins run the business from the inventory dashboard — send them there.
+      if (localStorage.getItem('checkout_role') === 'ADMIN') {
+        navigate('/admin/inventory')
+        return
+      }
       navigate('/')
     } catch (err) {
       setError(err.message)

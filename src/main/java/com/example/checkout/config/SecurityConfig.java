@@ -43,6 +43,8 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
                 .requestMatchers("/api/orders/*/status").hasRole("ADMIN")
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/orders/all").hasRole("ADMIN")
+                // Inventory back office — admin only.
+                .requestMatchers("/api/inventory/**").hasRole("ADMIN")
 
                 // everything else needs a valid token
                 .anyRequest().authenticated()

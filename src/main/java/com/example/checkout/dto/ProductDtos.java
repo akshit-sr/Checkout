@@ -20,6 +20,7 @@ public class ProductDtos {
             String name,
             String description,
             BigDecimal price,
-            Integer stockQuantity
+            Integer stockQuantity,
+            String sku
     ) {}
 }

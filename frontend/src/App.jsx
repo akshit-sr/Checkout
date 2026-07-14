@@ -6,7 +6,7 @@ import Login from './pages/Login.jsx'
 import Products from './pages/Products.jsx'
 import Cart from './pages/Cart.jsx'
 import Orders from './pages/Orders.jsx'
-import Admin from './pages/Admin.jsx'
+import InventoryApp from './inventory/InventoryApp.jsx'
 
 function Protected({ children }) {
   const { user } = useAuth()
@@ -63,9 +63,9 @@ function Nav() {
         {user ? (
           <>
             {isAdmin && (
-              <Link to="/admin" className="nav-block">
-                <span className="nav-line1">Sales &amp; stock</span>
-                <span className="nav-line2">Dashboard</span>
+              <Link to="/admin/inventory" className="nav-block">
+                <span className="nav-line1">Manage stock &amp; sales</span>
+                <span className="nav-line2">Inventory</span>
               </Link>
             )}
             <Link to="/orders" className="nav-block nav-orders">
@@ -98,6 +98,17 @@ function Nav() {
 }
 
 export default function App() {
+  const location = useLocation()
+  // The inventory back office is a full-screen dashboard with its own sidebar,
+  // so it renders without the storefront top-nav and centered container.
+  if (location.pathname.startsWith('/admin/inventory')) {
+    return (
+      <Routes>
+        <Route path="/admin/inventory/*" element={<AdminOnly><InventoryApp /></AdminOnly>} />
+      </Routes>
+    )
+  }
+
   return (
     <>
       <Nav />
@@ -107,7 +118,6 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/cart" element={<Protected><Cart /></Protected>} />
           <Route path="/orders" element={<Protected><Orders /></Protected>} />
-          <Route path="/admin" element={<AdminOnly><Admin /></AdminOnly>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

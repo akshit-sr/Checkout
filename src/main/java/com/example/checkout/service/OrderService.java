@@ -33,6 +33,7 @@ public class OrderService {
     private final UserRepository userRepository;
     private final CartService cartService;
     private final ProductStreamService productStreamService;
+    private final com.example.inventory.service.StockMovementService stockMovementService;
 
     // Legal transitions for the order state machine.
     private static final Map<OrderStatus, EnumSet<OrderStatus>> ALLOWED_TRANSITIONS = new EnumMap<>(OrderStatus.class);
@@ -46,12 +47,14 @@ public class OrderService {
 
     public OrderService(OrderRepository orderRepository, ProductRepository productRepository,
                          UserRepository userRepository, CartService cartService,
-                         ProductStreamService productStreamService) {
+                         ProductStreamService productStreamService,
+                         com.example.inventory.service.StockMovementService stockMovementService) {
         this.orderRepository = orderRepository;
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.cartService = cartService;
         this.productStreamService = productStreamService;
+        this.stockMovementService = stockMovementService;
     }
 
     /**
@@ -105,6 +108,13 @@ public class OrderService {
         order.setTotalAmount(total);
         Order saved = orderRepository.save(order);
 
+        // Record each sold line as a STOCK_OUT movement for the inventory audit
+        // trail. Stock was already decremented above, so this only logs it.
+        for (OrderItem item : saved.getItems()) {
+            stockMovementService.logSale(item.getProduct(), item.getQuantity(),
+                    "Order #" + saved.getId() + " checkout");
+        }
+
         cart.getItems().clear(); // empty the cart after successful checkout
 
         // Push the live stock update only once the order has actually committed,
@@ -122,12 +132,12 @@ public class OrderService {
     public List<OrderResponse> getOrdersForUser(String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "User not found"));
-        return orderRepository.findByUserId(user.getId()).stream().map(this::toResponse).toList();
+        return orderRepository.findByUserIdOrderByIdDesc(user.getId()).stream().map(this::toResponse).toList();
     }
 
     /** All orders across all customers — admin view for fulfilling/shipping. */
     public List<OrderResponse> getAllOrders() {
-        return orderRepository.findAll().stream().map(this::toResponse).toList();
+        return orderRepository.findAllByOrderByIdDesc().stream().map(this::toResponse).toList();
     }
 
     public OrderResponse updateStatus(Long orderId, OrderStatus newStatus) {

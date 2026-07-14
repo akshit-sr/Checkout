@@ -1,4 +1,4 @@
-package com.example.checkout.exception;
+package com.example.inventory.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,11 +12,14 @@ import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-// Lowest precedence so it acts as the global fallback: the inventory advice
-// (scoped + highest precedence) handles inventory controllers first.
-@Order(Ordered.LOWEST_PRECEDENCE)
-@RestControllerAdvice
-public class GlobalExceptionHandler {
+/**
+ * Error handling for the inventory back-office controllers only. Scoped by
+ * base package so it never competes with the storefront's own advice for the
+ * shared framework exceptions.
+ */
+@Order(Ordered.HIGHEST_PRECEDENCE)
+@RestControllerAdvice(basePackages = "com.example.inventory")
+public class InventoryExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<Map<String, Object>> handleApiException(ApiException ex) {
@@ -30,12 +33,6 @@ public class GlobalExceptionHandler {
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .orElse("Validation failed");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body(HttpStatus.BAD_REQUEST, message));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(body(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong"));
     }
 
     private Map<String, Object> body(HttpStatus status, String message) {

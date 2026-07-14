@@ -28,7 +28,8 @@ export default function Orders() {
   function load() {
     const fetch = isAdmin ? api.getAllOrders() : api.getOrders()
     fetch
-      .then(setOrders)
+      // Newest order first.
+      .then(data => setOrders([...data].sort((a, b) => b.id - a.id)))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }
