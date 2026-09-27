@@ -49,13 +49,13 @@ Keep **one worker**: SSE broadcasts and the daily email scheduler run in-process
 
 ```powershell
 cd frontend
-npm.cmd ci --include=dev
-npm.cmd run dev
+npm ci --include=dev
+npm run dev
 ```
 
 Open **http://localhost:5173**. The frontend proxies `/api` requests to port **8080**, so keep the backend running.
 
-`npm.cmd` avoids PowerShell's `npm.ps1` execution-policy issue. On macOS/Linux, use `npm` instead.
+`npm` avoids PowerShell's `npm.ps1` execution-policy issue. On macOS/Linux, use `npm` instead.
 
 ### Sign in
 
@@ -174,12 +174,12 @@ Use credentials for a role allowed to create schemas. PostgreSQL tests create an
 From `frontend/`, verify the production build:
 
 ```powershell
-npm.cmd run build
+npm run build
 ```
 
 ## Troubleshooting
 
-- **`'vite' is not recognized`:** dependencies are missing or dev dependencies were omitted. From `frontend/`, run `npm.cmd ci --include=dev`, then `npm.cmd run dev`. A global Vite installation is unnecessary.
+- **`'vite' is not recognized`:** dependencies are missing or dev dependencies were omitted. From `frontend/`, run `npm ci --include=dev`, then `npm run dev`. A global Vite installation is unnecessary.
 - **`EPERM` involving `esbuild.exe` during installation:** stop the frontend dev server if it is running, then retry the install. If it persists, check file permissions or whether another process is holding the executable.
 - **Frontend API requests fail:** confirm PostgreSQL is running and FastAPI is listening on port `8080`.
 - **Database connection fails:** check `DB_URL`, `DB_USERNAME`, and `DB_PASSWORD`; create the database only if it does not already exist.
